@@ -1,0 +1,119 @@
+---
+# Waterloo Cycling Club - Master Ride Configuration
+
+# Ride Disciplines
+disciplines:
+  - id: cx
+    name: "Cyclocross"
+    url: "https://www.waterloocyclingclub.ca/ride/gravel"
+  - id: gravel
+    name: "Gravel"
+    url: "https://www.waterloocyclingclub.ca/ride/gravel"
+  - id: mtb
+    name: "Mountain Bike"
+    url: "https://www.waterloocyclingclub.ca/ride/mtb-mountain"
+  - id: road
+    name: "Road"
+    url: "https://www.waterloocyclingclub.ca/ride/road"
+
+# LocationsLocationName
+locations:
+  - id: location_id
+    name: "Location Name"
+    url: ""
+    description: |
+      Multi-line description.
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+      Sed do eiusmod tempor incididunt ut labore et dolore
+      magna aliqua. Ut enim ad minim veniam, quis nostrud
+      exercitation ullamco laboris nisi ut aliquip ex ea
+      commodo consequat.
+    applicable_disciplines: ["road", "gravel", "mtb"]
+
+# Ride Culture
+ride_cultures:
+  - discipline_id: gravel
+    culture:
+      - name: "Fast"
+        url: "https://www.waterloocyclingclub.ca/ride/ride-culture/gravel-culture#h.pdh8nvx4y2mv"
+      - name: "Intermediate"
+        url: "https://www.waterloocyclingclub.ca/ride/ride-culture/gravel-culture#h.dal5f9l7h7ts"
+      - name: "Rec"
+        url: "https://www.waterloocyclingclub.ca/ride/ride-culture/gravel-culture#h.e6751b4394ib"
+
+# Ride Descriptions
+ride_descriptions:
+  - name: "Ad hoc"
+    description: |
+      This is the time of year when we don't do a lot of planning. We just
+      ride from the start for about half the time (into the wind where
+      practical), and the turn and ride for home (with a tail wind).
+
+# Ride Notes
+ride_notes:
+  - name: "Fenders Mandatory"
+    description: |
+      Full coverage fenders are required. 
+      Clip-on 'ass-savers' are not sufficient as they do 
+      not protect the rider behind you from road spray.
+
+# Ride Groups and Paces
+ride_groups:
+  - discipline_id: gravel
+    group_collections:
+      - name: "Fast & Intermediate"
+        description: "Groups G1 through G4."
+        member_groups: ["G1", "G2", "G3", "G4"]
+      - name: "G5 & Rec"
+        description: "G5 & Rec"
+        member_groups: ["G5", "Rec"]
+    groups:
+      - name: "G1"
+        description: |
+          Our fastest gravel group. Expect high speeds.
+          Not recommended for those new to group riding.
+        estimated_moving_pace:
+          summer: "32+ km/h"
+          winter: "25-27 km/h"
+      - name: "G2"
+        description: |
+          A spirited ride.
+        estimated_moving_pace:
+          summer: "30-32 km/h"
+          winter: "25-27 km/h"
+      - name: "G3"
+        description: |
+          Working more as a group, but still quick pace.
+        estimated_moving_pace:
+          summer: "27-29 km/h (no drop)"
+          winter: "25-27 km/h (no drop)"
+      - name: "G4"
+        description: |
+          Solid group ride with emphasis on riding as a group.
+        estimated_moving_pace:
+          summer: "24-26 km/h (no drop)"
+          winter: "23-25 km/h (no drop)"
+      - name: "G5"
+        description: |
+          Easier group ride with a few more stops to regroup.
+        estimated_moving_pace:
+          summer: "21-24 km/h (no drop)"
+          winter: "18-20 km/h (no drop)"
+      - name: "Rec"
+        description: |
+          A fun social ride. This ride is great for those who do
+          not want to ride in a tight formation. More relaxed
+          pace than that of the more advanced gravel cultures.
+          More stops to regroup, or grab a snack or a selfie.
+        estimated_moving_pace:
+          summer: "18-20 km/h (no drop)"
+          winter: "16-18 km/h (no drop)"
+
+ride_footer: |
+  If you have specific questions prior to your ride please ask here.  
+  Thanks & enjoy your Ride!
+
+  **WCC rides are open to members only. Guests are permitted provided
+  they have an active OCA membership. All riders must follow the rules
+  of the Highway Traffic Act and are responsible for riding in a safe
+  manner**
