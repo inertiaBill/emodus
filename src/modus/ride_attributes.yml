@@ -64,9 +64,11 @@ ride_groups:
       - name: "Fast & Intermediate"
         description: "Groups G1 through G4."
         member_groups: ["G1", "G2", "G3", "G4"]
+        member_cultures: ["Fast", "Intermediate"]
       - name: "G5 & Rec"
         description: "G5 & Rec"
         member_groups: ["G5", "Rec"]
+        member_cultures: ["Rec"]
     groups:
       - name: "G1"
         description: |

@@ -94,20 +94,20 @@ def parse_flexible_time(time_str):
     # Check for AM/PM indicator
     is_pm = bool(re.search(pm_pattern, time_str, re.IGNORECASE))
     is_am = bool(re.search(am_pattern, time_str, re.IGNORECASE))
-    
+
     # Remove AM/PM indicators for parsing
     #clean_str = re.sub(r'\s*(a|am|p|pm)\.?\s*', '', time_str, flags=re.IGNORECASE).strip()
     clean_str = re.sub(r'\s*(am|a|pm|p)\.?\s*', '', time_str, flags=re.IGNORECASE).strip()
-    
+
     # Try to extract hours and minutes
     time_match = re.match(r'^(\d{1,2})(?::(\d{2}))?(?::(\d{2}))?$', clean_str)
-    
+
     if not time_match:
         raise ValueError("Could not parse time format. Expected HH:MM or HH")
-    
+
     hour = int(time_match.group(1))
     minute = int(time_match.group(2)) if time_match.group(2) else 0
-    
+
     # Validate ranges
     if hour < 0 or hour > 23:
         raise ValueError("Hour must be between 0 and 23")
@@ -174,6 +174,76 @@ def select_from_list(items, item_name):
         except ValueError:
             print("Invalid input. Please enter a number.")
 
+def build_culture_string(ride_attributes, discipline, culture):
+    """
+    Build the list of hyperlinks for the cultures of this ride
+    """
+
+    culture_string = ""
+    culture_list = get_specific_collection_list(ride_attributes, discipline, culture, "member_cultures")
+
+    #for culture in culture_list:
+    for culture_item in ride_attributes["ride_cultures"]:
+        if culture_item["discipline_id"] == discipline:
+            for item in culture_item["culture"]:
+                if item.get("name") in culture_list:
+                    logger.debug(f"Culture: {item.get("name")}")
+                    logger.debug(f"URL:     {item.get("url")}")
+                    if culture_string.strip() != "":
+                        culture_string += ", "
+                    culture_string = culture_string + "[" +\
+                        item.get("name") + "](" +\
+                        item.get("url") + ")"
+        break
+    return culture_string
+
+def get_specific_member_groups(data, discipline_id, collection_name):
+    """
+    Returns a list from a ride group collection
+    member_groups for a specific discipline and collection name.
+    """
+    # Access the ride_groups list
+    ride_groups = data.get('ride_groups', [])
+    
+    for ride in ride_groups:
+        # Check if discipline matches
+        if ride.get('discipline_id') == discipline_id:
+            
+            # Access the group_collections within that discipline
+            collections = ride.get('group_collections', [])
+            
+            for collection in collections:
+                # Check if the collection name matches (case-insensitive)
+                current_name = collection.get('name', '')
+                if current_name.strip().lower() == collection_name.strip().lower():
+                    return collection.get('member_groups', [])
+    
+    # Return None or an empty list if no match is found
+    return None
+
+def get_specific_collection_list(ride_attributes, discipline_id, collection_name, list_name):
+    """
+    Returns a list from a ride group collection
+    """
+    # Access the ride_groups list
+    
+    logger.debug(f"Available keys: {ride_attributes.keys()}")
+    for ride in ride_attributes["ride_groups"]:
+        # Check if discipline matches
+        if ride['discipline_id'] == discipline_id:
+            
+            logger.debug(f"Available keys: {ride.keys()}")
+            # Access the group_collections within that discipline
+            for collection in ride["group_collections"]:
+            
+                # Check if the collection name matches (case-insensitive)
+                current_name = collection["name"]
+                if current_name.strip().lower() == collection_name.strip().lower():
+                    return collection[list_name]
+    
+    # Return None or an empty list if no match is found
+    return None
+
 def main():
     # Check if 'DEBUG' environment variable exists    
     ride_attributes = load_ride_attributes("ride_attributes.yml")
@@ -188,16 +258,25 @@ def main():
     selected_discipline = select_from_list(disciplines, "discipline")
 
     # Get User Input for Start Time and Estimated Finish Time
-    start_time = get_time_input("Enter the start time (14:30, 2 PM, 6p, 8am): ")
+    start_time = get_time_input("Enter the start time (14:30, 2 PM, 6p, 9am): ")
     finish_time = get_time_input("Enter the estimated finish time: ")
 
-    # 4. Get User Input for Culture
+    # Get User Input for Culture
     cultures = []
     for culture_collection in ride_attributes["ride_cultures"]:
         if culture_collection["discipline_id"] == selected_discipline["id"]:
-            cultures = culture_collection["culture"]
+            cultures.extend(culture_collection["culture"])
             break
+    
+    for group_collection_item in ride_attributes["ride_groups"]:
+        if group_collection_item["discipline_id"] == selected_discipline["id"]:
+            for group in group_collection_item["group_collections"]:
+                cultures.append({"name": group["name"], "url": ""}) # Assuming no URL for group collections or a default empty string
+            break
+
     selected_culture = select_from_list(cultures, "culture") if cultures else {"name": "N/A", "url": ""}
+    culture_info = build_culture_string(ride_attributes, selected_discipline, selected_culture)
+    #def build_culture_string(culture_info, discipline, culture, ride_attributes):
 
     # Get User Input for Approximate Distance
     approx_distance = input("\nEnter the approximate distance in km: ")
@@ -225,14 +304,22 @@ def main():
     output_content = output_content.replace("HH:MM AM_OR_PM", finish_time.strftime("%I:%M %p"), 1)
     output_content = output_content.replace("RIDE_ATTRIBUTES_YML_DISCIPLINES_NAME", selected_discipline["name"])
     output_content = output_content.replace("RIDE_ATTRIBUTES_YML_DISCIPLINES_URL", selected_discipline["url"])
-    output_content = output_content.replace("RIDE_ATTRIBUTES_YML_CULTURES_NAME", selected_culture["name"])
-    output_content = output_content.replace("RIDE_ATTRIBUTES_YML_CULTURES_URL", selected_culture["url"])
+    if selected_culture["url"] == "":
+        culture_string = build_culture_string(ride_attributes, selected_discipline["id"], selected_culture["name"])
+    else:
+        # It's an individual culture with a URL
+        culture_string = "[" + selected_culture["name"] +\
+            "](" + selected_culture["url"] + ")"
     #TODO if "approx_distance" is empty, then say "See routes" and don't append "km"
+    #def build_culture_string(ride_attributes, discipline, culture):
+    logger.debug(f"culture_string: {culture_string}")
+    output_content = output_content.replace("RIDE_ATTRIBUTES_YML_CULTURES_INFO", culture_string)
     if approx_distance.strip() == "":
         approx_distance = "See proposed route"
     else:
         approx_distance += " km"
     output_content = output_content.replace("DISTANCE", approx_distance)
+    output_content = output_content.replace("ESTIMATED_MOVING_AVERAGE", "TODO")
     output_content = output_content.replace("PROMPT_FOR_ROUTE", "\n".join(route_description))
     output_content = output_content.replace("PROMPT_FOR_DESCRIPTION", ride_description_text)
     output_content = output_content.replace("PROMPT_FOR_NOTES", ride_notes)
