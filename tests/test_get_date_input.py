@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime
 from unittest.mock import patch
-from modus.gen import get_date_input
+from emodus.gen import get_date_input
 
 # We mock 'now' to be a Friday (index 4) to test weekday wrap-around
 MOCK_NOW = datetime(2026, 4, 3) # April 3, 2026 is a Friday
@@ -13,7 +13,7 @@ def mock_datetime_now(monkeypatch):
         def now(cls):
             return MOCK_NOW
     # Patch the datetime class in the module where get_date_input lives
-    monkeypatch.setattr("modus.gen.datetime", MockDateTime)
+    monkeypatch.setattr("emodus.gen.datetime", MockDateTime)
 
 def test_numeric_shortcuts(mock_datetime_now):
     """Test 0, 1, and 2 shortcuts."""

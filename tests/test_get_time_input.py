@@ -3,7 +3,7 @@ import re
 from datetime import time
 from unittest.mock import patch
 # Replace 'your_script' with the actual filename where your code lives
-from modus.gen import parse_flexible_time, get_time_input
+from emodus.gen import parse_flexible_time, get_time_input
 
 @pytest.mark.parametrize("input_str, expected", [
     ("14", time(14, 0)),            # 24-hour hour only
