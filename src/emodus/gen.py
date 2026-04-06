@@ -1,5 +1,21 @@
 #!/usr/bin/env python3
 
+# eModus - a tool to make event preparation easy
+# Copyright (C) 2026 inertiaBill
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>
+
 import yaml
 import logging
 import os
@@ -249,6 +265,8 @@ def main():
     ride_attributes = load_ride_attributes("ride_attributes.yml")
     with open("ride_template.md", "r") as file:
         ride_template = file.read()
+
+    print("eModus, Copyright (c) 2026, inertiaBill. Licensed under AGPLv3")
 
     # Get User Input for Date
     ride_date = get_date_input()
