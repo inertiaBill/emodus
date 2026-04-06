@@ -2,22 +2,23 @@
 
 Modus: Latin for "way" or "method."
 
-eModus is a way to build event descriptions when planning events
+eModus is a way to build event descriptions when planning events.
 This has its roots with the Waterloo Cycling Club and planning
-club events but could be used in a more general way
+club events but could be used in a more general way.
 
 Base configuration details are in `ride_attributes.yml`. The
 responses to the prompts of gen.py combined with
-ride_attributes.yml are pushed into 
+ride_attributes.yml are synthesized into a complete ride
+description.
 
 ## Prerequites
 
-- Python version 3.12 (later is expected to work but not tested)
-- Python venv
+- Python version 3.12 (later is expected to work but not tested).
+- Python venv.
 
 ## Setup
 
-It is recommended that you use a Python virtual environment
+It is recommended that you use a Python virtual environment:
 
 - Open command prompt for your system
 - Create virtual environment
