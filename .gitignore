@@ -1,3 +1,9 @@
+# Project Generated
+generated_ride_description.md
+
+# Configuration
+.vscode/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
