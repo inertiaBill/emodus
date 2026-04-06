@@ -16,11 +16,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>
 
-import yaml
 import logging
 import os
 import re
 from datetime import datetime, timedelta, time
+import yaml
 
 # Define the logger that was missing
 logger = logging.getLogger("modus")
@@ -35,15 +35,6 @@ def load_ride_attributes(file_path):
         return yaml.safe_load(file)
 
 def get_date_input():
-    while True:
-        date_str = input("Enter the ride date (YYYY-MM-DD): ")
-        try:
-            return datetime.strptime(date_str, "%Y-%m-%d")
-        except ValueError:
-            print("Invalid date format. Please use YYYY-MM-DD.")
-
-
-def get_date_input():
     day_map = {'m': 0, 'tu': 1, 'w': 2, 'th': 3, 'f': 4, 'sa': 5, 'su': 6}
 
     while True:
@@ -53,11 +44,12 @@ def get_date_input():
 
         if user_input in ['0', '1', '2']:
             target_date = datetime.now() + timedelta(days=int(user_input))
-        
+
         elif user_input in day_map:
             today = datetime.now()
             days_ahead = (day_map[user_input] - today.weekday()) % 7
-            if days_ahead == 0: days_ahead = 7
+            if days_ahead == 0:
+                days_ahead = 7
             target_date = today + timedelta(days=days_ahead)
 
         if target_date:
@@ -80,15 +72,15 @@ def get_time_input(prompt_message):
     """
     while True:
         user_input = input(prompt_message).strip().lower()
-        
+
         if not user_input:
             print("Input cannot be empty. Please try again.")
             continue
-        
+
         try:
             parsed_time = parse_flexible_time(user_input)
             return parsed_time
-            
+
         except ValueError as e:
             print(f"Invalid time: {e}. Please try again.")
 
@@ -99,7 +91,7 @@ def parse_flexible_time(time_str):
     """
     # Remove extra spaces and normalize
     time_str = ' '.join(time_str.split())
-    
+
     # Patterns to detect AM/PM indicators
     # TODO Patterns with word break. Do we need that at all
     # am_pattern = r'\b(a|am|am\.?)\b'
@@ -131,17 +123,17 @@ def parse_flexible_time(time_str):
         raise ValueError("Minute must be between 0 and 59")
     #if second < 0 or second > 59:
     #    raise ValueError("Second must be between 0 and 59")
-    
+
     # Convert 12-hour to 24-hour if needed
     if is_pm and hour != 12:
         hour += 12
     elif is_am and hour == 12:
         hour = 0
-    
+
     # If no AM/PM indicator and hour > 12, assume 24-hour format
     # If no AM/PM indicator and hour <= 12, assume AM (midnight to noon)
     # This handles "8" = 08:00 AM, "14" = 14:00 (24-hour)
-    
+
     return time(hour, minute)
 
 def collect_multiline_input(prompt="Enter text (press Enter twice to finish):\n"):
@@ -156,13 +148,13 @@ def collect_multiline_input(prompt="Enter text (press Enter twice to finish):\n"
         A list of strings containing all entered lines (excluding the two blank lines)
     """
     print(prompt)
-    
+
     lines = []
     consecutive_blank = 0
-    
+
     while True:
         line = input()
-        
+
         # Check if line is blank (empty or whitespace only)
         if line.strip() == "":
             consecutive_blank += 1
@@ -220,20 +212,20 @@ def get_specific_member_groups(data, discipline_id, collection_name):
     """
     # Access the ride_groups list
     ride_groups = data.get('ride_groups', [])
-    
+
     for ride in ride_groups:
         # Check if discipline matches
         if ride.get('discipline_id') == discipline_id:
-            
+
             # Access the group_collections within that discipline
             collections = ride.get('group_collections', [])
-            
+
             for collection in collections:
                 # Check if the collection name matches (case-insensitive)
                 current_name = collection.get('name', '')
                 if current_name.strip().lower() == collection_name.strip().lower():
                     return collection.get('member_groups', [])
-    
+
     # Return None or an empty list if no match is found
     return None
 
@@ -242,26 +234,26 @@ def get_specific_collection_list(ride_attributes, discipline_id, collection_name
     Returns a list from a ride group collection
     """
     # Access the ride_groups list
-    
+
     logger.debug(f"Available keys: {ride_attributes.keys()}")
     for ride in ride_attributes["ride_groups"]:
         # Check if discipline matches
         if ride['discipline_id'] == discipline_id:
-            
+
             logger.debug(f"Available keys: {ride.keys()}")
             # Access the group_collections within that discipline
             for collection in ride["group_collections"]:
-            
+
                 # Check if the collection name matches (case-insensitive)
                 current_name = collection["name"]
                 if current_name.strip().lower() == collection_name.strip().lower():
                     return collection[list_name]
-    
+
     # Return None or an empty list if no match is found
     return None
 
 def main():
-    # Check if 'DEBUG' environment variable exists    
+    # Check if 'DEBUG' environment variable exists
     ride_attributes = load_ride_attributes("ride_attributes.yml")
     with open("ride_template.md", "r") as file:
         ride_template = file.read()
@@ -285,7 +277,7 @@ def main():
         if culture_collection["discipline_id"] == selected_discipline["id"]:
             cultures.extend(culture_collection["culture"])
             break
-    
+
     for group_collection_item in ride_attributes["ride_groups"]:
         if group_collection_item["discipline_id"] == selected_discipline["id"]:
             for group in group_collection_item["group_collections"]:
@@ -293,8 +285,6 @@ def main():
             break
 
     selected_culture = select_from_list(cultures, "culture") if cultures else {"name": "N/A", "url": ""}
-    culture_info = build_culture_string(ride_attributes, selected_discipline, selected_culture)
-    #def build_culture_string(culture_info, discipline, culture, ride_attributes):
 
     # Get User Input for Approximate Distance
     approx_distance = input("\nEnter the approximate distance in km: ")
