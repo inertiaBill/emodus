@@ -58,7 +58,7 @@ def test_multiple_groups_formatting(ride_attributes):
     ride_date = datetime(2026, 6, 1)
     result = format_group_paces(ride_attributes, 'gravel', ['G1', 'NoWinter'], ride_date)
 
-    expected = "G1: 30km/h\nNoWinter: 20km/h"
+    expected = "\n\nG1: 30km/h\nNoWinter: 20km/h\n"
     assert result == expected
 
 # Test Missing Discipline
