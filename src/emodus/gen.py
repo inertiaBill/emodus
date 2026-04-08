@@ -205,13 +205,37 @@ def build_culture_string(ride_attributes, discipline, culture):
         break
     return culture_string
 
-def get_specific_member_groups(data, discipline_id, collection_name):
+def build_estimated_pace(ride_attributes, discipline, culture):
+    """
+    Build the list of
+    """
+
+    culture_string = ""
+    culture_list = get_specific_collection_list(ride_attributes, discipline, culture, "member_cultures")
+
+    #for culture in culture_list:
+    for culture_item in ride_attributes["ride_cultures"]:
+        if culture_item["discipline_id"] == discipline:
+            for item in culture_item["culture"]:
+                if item.get("name") in culture_list:
+                    logger.debug(f"Culture: {item.get("name")}")
+                    logger.debug(f"URL:     {item.get("url")}")
+                    if culture_string.strip() != "":
+                        culture_string += ", "
+                    culture_string = culture_string + "[" +\
+                        item.get("name") + "](" +\
+                        item.get("url") + ")"
+        break
+    return culture_string
+
+
+def get_specific_member_groups(ride_attributes, discipline_id, collection_name):
     """
     Returns a list from a ride group collection
     member_groups for a specific discipline and collection name.
     """
     # Access the ride_groups list
-    ride_groups = data.get('ride_groups', [])
+    ride_groups = ride_attributes.get('ride_groups', [])
 
     for ride in ride_groups:
         # Check if discipline matches
@@ -252,6 +276,100 @@ def get_specific_collection_list(ride_attributes, discipline_id, collection_name
     # Return None or an empty list if no match is found
     return None
 
+def get_group_name_as_list(ride_attributes, discipline_id):
+    # Locate the discipline
+    discipline = next((d for d in ride_attributes.get('ride_groups', [])
+                       if d.get('discipline_id') == discipline_id), None)
+
+    if not discipline or 'groups' not in discipline:
+        print(f"Discipline '{discipline_id}' not found.")
+        return []
+
+    groups = discipline['groups']
+
+    # List group names for the user
+    print(f"\nSelect a {discipline_id} group:")
+    for i, group in enumerate(groups, 1):
+        print(f"{i}. {group.get('name')}")
+
+    # Capture input and return the name in a list
+    while True:
+        try:
+            choice = int(input(f"Selection (1-{len(groups)}): "))
+            if 1 <= choice <= len(groups):
+                # Target only the 'name' string and wrap it in a list
+                selected_name = groups[choice - 1].get('name')
+                return [selected_name]
+            else:
+                print(f"Please choose a number between 1 and {len(groups)}.")
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+
+from datetime import date
+
+def format_group_paces(ride_attributes, discipline_id, list_of_groups, ride_date):
+    """
+    Creates a formatted string of group names and paces.
+    - Summer: April 1st to Nov 15th
+    - Winter: Nov 16th to March 31st
+    """
+    # Define the seasonal boundaries
+    # summer_start = date(ride_date.year, 4, 1)
+    # summer_end = date(ride_date.year, 11, 15)
+    summer_start = datetime(ride_date.year, 4, 1)
+    summer_end = datetime(ride_date.year, 11, 15)
+    is_summer = summer_start <= ride_date <= summer_end
+
+    # Extract the discipline data
+    discipline = next((d for d in ride_attributes.get('ride_groups', [])
+                       if d.get('discipline_id') == discipline_id), None)
+
+    if not discipline:
+        return f"Error: Discipline '{discipline_id}' not found."
+
+    # Create a lookup map for the groups for faster access
+    group_lookup = {g['name']: g for g in discipline.get('groups', [])}
+
+    output_lines = []
+
+    if len(list_of_groups) > 1:
+        output_lines.append("\n")
+    # Process each requested group
+    for name in list_of_groups:
+        group_data = group_lookup.get(name)
+        if not group_data:
+            output_lines.append(f"{name}: Group data not found")
+            continue
+
+        paces = group_data.get('estimated_moving_pace', {})
+        summer_pace = paces.get('summer')
+        winter_pace = paces.get('winter')
+
+        # 4. Pace Logic
+        if is_summer:
+            final_pace = summer_pace or "Pace not specified"
+        else:
+            # Winter logic with fallback and warning
+            if winter_pace:
+                final_pace = winter_pace
+            elif summer_pace:
+                print(f"Warning: No winter pace found for {name}. Using summer pace instead.")
+                final_pace = summer_pace
+            else:
+                final_pace = "Pace not specified"
+
+        output_lines.append(f"{name}: {final_pace}")
+
+    if len(list_of_groups) > 1:
+        output_lines.append("")
+
+    return "\n".join(output_lines)
+
+# --- Example Usage ---
+# ride_date = date(2024, 12, 1) # Winter
+# groups_to_print = ["G1", "G3"]
+# print(format_group_paces(config, "gravel", groups_to_print, ride_date))
+
 def main():
     # Check if 'DEBUG' environment variable exists
     ride_attributes = load_ride_attributes("ride_attributes.yml")
@@ -273,11 +391,12 @@ def main():
 
     # Get User Input for Culture
     cultures = []
+    # First get all cultures for discipline
     for culture_collection in ride_attributes["ride_cultures"]:
         if culture_collection["discipline_id"] == selected_discipline["id"]:
             cultures.extend(culture_collection["culture"])
             break
-
+    # Second add all culture collections for that discipline
     for group_collection_item in ride_attributes["ride_groups"]:
         if group_collection_item["discipline_id"] == selected_discipline["id"]:
             for group in group_collection_item["group_collections"]:
@@ -285,6 +404,19 @@ def main():
             break
 
     selected_culture = select_from_list(cultures, "culture") if cultures else {"name": "N/A", "url": ""}
+
+    # We will use this later when differentiating between culture and
+    # group of cultures
+    is_group_collection = selected_culture["url"] == ""
+
+    # Assemble estimated pace for all groups of selected cultures
+    if is_group_collection is True:
+        list_of_groups = get_specific_member_groups(ride_attributes, selected_discipline["id"], selected_culture["name"])
+    else:
+        list_of_groups = get_group_name_as_list(ride_attributes, selected_discipline["id"])
+    print(list_of_groups)
+    estimated_pace_string = format_group_paces(ride_attributes, selected_discipline["id"], list_of_groups, ride_date)
+    #def format_group_paces(ride_attributes, discipline_id, selected_groups, ride_date)
 
     # Get User Input for Approximate Distance
     approx_distance = input("\nEnter the approximate distance in km: ")
@@ -312,22 +444,21 @@ def main():
     output_content = output_content.replace("HH:MM AM_OR_PM", finish_time.strftime("%I:%M %p"), 1)
     output_content = output_content.replace("RIDE_ATTRIBUTES_YML_DISCIPLINES_NAME", selected_discipline["name"])
     output_content = output_content.replace("RIDE_ATTRIBUTES_YML_DISCIPLINES_URL", selected_discipline["url"])
-    if selected_culture["url"] == "":
+    if is_group_collection is True:
+        # We have a collection of groups
         culture_string = build_culture_string(ride_attributes, selected_discipline["id"], selected_culture["name"])
     else:
-        # It's an individual culture with a URL
+        # It's an individual group. Prompt for group name.
         culture_string = "[" + selected_culture["name"] +\
             "](" + selected_culture["url"] + ")"
-    #TODO if "approx_distance" is empty, then say "See routes" and don't append "km"
-    #def build_culture_string(ride_attributes, discipline, culture):
     logger.debug(f"culture_string: {culture_string}")
     output_content = output_content.replace("RIDE_ATTRIBUTES_YML_CULTURES_INFO", culture_string)
     if approx_distance.strip() == "":
-        approx_distance = "See proposed route"
+        approx_distance = " See proposed route"
     else:
         approx_distance += " km"
     output_content = output_content.replace("DISTANCE", approx_distance)
-    output_content = output_content.replace("ESTIMATED_MOVING_AVERAGE", "TODO")
+    output_content = output_content.replace("ESTIMATED_MOVING_AVERAGE", estimated_pace_string)
     output_content = output_content.replace("PROMPT_FOR_ROUTE", "\n".join(route_description))
     output_content = output_content.replace("PROMPT_FOR_DESCRIPTION", ride_description_text)
     output_content = output_content.replace("PROMPT_FOR_NOTES", ride_notes)
