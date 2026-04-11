@@ -436,6 +436,9 @@ def main():
     day_of_month = ride_date.strftime("%d")
     year = ride_date.strftime("%Y")
 
+    title = f"{day_of_week} {selected_culture["name"]} {month} {day_of_month}, {start_time.strftime("%I:%M %p")} at START_LOCATION"
+    logger.debug(f"Ride title: {title}")
+
     output_content = ride_template.replace("DAY_OF_WEEK", day_of_week)
     output_content = output_content.replace("MONTH", month)
     output_content = output_content.replace("DAY_NUMBER", day_of_month)
