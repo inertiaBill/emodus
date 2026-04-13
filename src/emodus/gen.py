@@ -25,24 +25,24 @@ import yaml
 # Define the logger that was missing
 logger = logging.getLogger("modus")
 
-if os.getenv('DEBUG'):
-    logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
+if os.getenv("DEBUG"):
+    logging.basicConfig(level=logging.DEBUG, format="%(levelname)s: %(message)s")
 else:
     logging.basicConfig(level=logging.INFO)
 
 def load_ride_attributes(file_path):
-    with open(file_path, 'r') as file:
+    with open(file_path, "r") as file:
         return yaml.safe_load(file)
 
 def get_date_input():
-    day_map = {'m': 0, 'tu': 1, 'w': 2, 'th': 3, 'f': 4, 'sa': 5, 'su': 6}
+    day_map = {"m": 0, "tu": 1, "w": 2, "th": 3, "f": 4, "sa": 5, "su": 6}
 
     while True:
         user_input = input("\nEnter date (0-2, m-su, or YYYY-MM-DD): ").strip().lower()
 
         target_date = None
 
-        if user_input in ['0', '1', '2']:
+        if user_input in ["0", "1", "2"]:
             target_date = datetime.now() + timedelta(days=int(user_input))
 
         elif user_input in day_map:
@@ -55,7 +55,7 @@ def get_date_input():
         if target_date:
             target_date = target_date.replace(hour=0, minute=0, second=0, microsecond=0)
             # LOGGING: This only shows if the level is set to DEBUG
-            logger.debug(f"Shortcut interpreted: {user_input} -> {target_date.strftime('%Y-%m-%d (%A)')}")
+            logger.debug(f"Shortcut interpreted: {user_input} -> {target_date.strftime("%Y-%m-%d (%A)")}")
             return target_date
 
         try:
@@ -90,25 +90,25 @@ def parse_flexible_time(time_str):
     Handles 24-hour and 12-hour formats with various abbreviations.
     """
     # Remove extra spaces and normalize
-    time_str = ' '.join(time_str.split())
+    time_str = " ".join(time_str.split())
 
     # Patterns to detect AM/PM indicators
     # TODO Patterns with word break. Do we need that at all
-    # am_pattern = r'\b(a|am|am\.?)\b'
-    # pm_pattern = r'\b(p|pm|pm\.?)\b'
-    am_pattern = r'(a|am|am\.?)'
-    pm_pattern = r'(p|pm|pm\.?)'
+    # am_pattern = r"\b(a|am|am\.?)\b"
+    # pm_pattern = r"\b(p|pm|pm\.?)\b"
+    am_pattern = r"(a|am|am\.?)"
+    pm_pattern = r"(p|pm|pm\.?)"
 
     # Check for AM/PM indicator
     is_pm = bool(re.search(pm_pattern, time_str, re.IGNORECASE))
     is_am = bool(re.search(am_pattern, time_str, re.IGNORECASE))
 
     # Remove AM/PM indicators for parsing
-    #clean_str = re.sub(r'\s*(a|am|p|pm)\.?\s*', '', time_str, flags=re.IGNORECASE).strip()
-    clean_str = re.sub(r'\s*(am|a|pm|p)\.?\s*', '', time_str, flags=re.IGNORECASE).strip()
+    #clean_str = re.sub(r"\s*(a|am|p|pm)\.?\s*", "", time_str, flags=re.IGNORECASE).strip()
+    clean_str = re.sub(r"\s*(am|a|pm|p)\.?\s*", "", time_str, flags=re.IGNORECASE).strip()
 
     # Try to extract hours and minutes
-    time_match = re.match(r'^(\d{1,2})(?::(\d{2}))?(?::(\d{2}))?$', clean_str)
+    time_match = re.match(r"^(\d{1,2})(?::(\d{2}))?(?::(\d{2}))?$", clean_str)
 
     if not time_match:
         raise ValueError("Could not parse time format. Expected HH:MM or HH")
@@ -235,20 +235,20 @@ def get_specific_member_groups(ride_attributes, discipline_id, collection_name):
     member_groups for a specific discipline and collection name.
     """
     # Access the ride_groups list
-    ride_groups = ride_attributes.get('ride_groups', [])
+    ride_groups = ride_attributes.get("ride_groups", [])
 
     for ride in ride_groups:
         # Check if discipline matches
-        if ride.get('discipline_id') == discipline_id:
+        if ride.get("discipline_id") == discipline_id:
 
             # Access the group_collections within that discipline
-            collections = ride.get('group_collections', [])
+            collections = ride.get("group_collections", [])
 
             for collection in collections:
                 # Check if the collection name matches (case-insensitive)
-                current_name = collection.get('name', '')
+                current_name = collection.get("name", "")
                 if current_name.strip().lower() == collection_name.strip().lower():
-                    return collection.get('member_groups', [])
+                    return collection.get("member_groups", [])
 
     # Return None or an empty list if no match is found
     return None
@@ -262,7 +262,7 @@ def get_specific_collection_list(ride_attributes, discipline_id, collection_name
     logger.debug(f"Available keys: {ride_attributes.keys()}")
     for ride in ride_attributes["ride_groups"]:
         # Check if discipline matches
-        if ride['discipline_id'] == discipline_id:
+        if ride["discipline_id"] == discipline_id:
 
             logger.debug(f"Available keys: {ride.keys()}")
             # Access the group_collections within that discipline
@@ -278,27 +278,27 @@ def get_specific_collection_list(ride_attributes, discipline_id, collection_name
 
 def get_group_name_as_list(ride_attributes, discipline_id):
     # Locate the discipline
-    discipline = next((d for d in ride_attributes.get('ride_groups', [])
-                       if d.get('discipline_id') == discipline_id), None)
+    discipline = next((d for d in ride_attributes.get("ride_groups", [])
+                       if d.get("discipline_id") == discipline_id), None)
 
-    if not discipline or 'groups' not in discipline:
-        print(f"Discipline '{discipline_id}' not found.")
+    if not discipline or "groups" not in discipline:
+        print(f"Discipline \'{discipline_id}\' not found.")
         return []
 
-    groups = discipline['groups']
+    groups = discipline["groups"]
 
     # List group names for the user
     print(f"\nSelect a {discipline_id} group:")
     for i, group in enumerate(groups, 1):
-        print(f"{i}. {group.get('name')}")
+        print(f"{i}. {group.get("name")}")
 
     # Capture input and return the name in a list
     while True:
         try:
             choice = int(input(f"Selection (1-{len(groups)}): "))
             if 1 <= choice <= len(groups):
-                # Target only the 'name' string and wrap it in a list
-                selected_name = groups[choice - 1].get('name')
+                # Target only the "name" string and wrap it in a list
+                selected_name = groups[choice - 1].get("name")
                 return [selected_name]
             else:
                 print(f"Please choose a number between 1 and {len(groups)}.")
@@ -321,14 +321,14 @@ def format_group_paces(ride_attributes, discipline_id, list_of_groups, ride_date
     is_summer = summer_start <= ride_date <= summer_end
 
     # Extract the discipline data
-    discipline = next((d for d in ride_attributes.get('ride_groups', [])
-                       if d.get('discipline_id') == discipline_id), None)
+    discipline = next((d for d in ride_attributes.get("ride_groups", [])
+                       if d.get("discipline_id") == discipline_id), None)
 
     if not discipline:
-        return f"Error: Discipline '{discipline_id}' not found."
+        return f"Error: Discipline \'{discipline_id}\' not found."
 
     # Create a lookup map for the groups for faster access
-    group_lookup = {g['name']: g for g in discipline.get('groups', [])}
+    group_lookup = {g["name"]: g for g in discipline.get("groups", [])}
 
     output_lines = []
 
@@ -341,9 +341,9 @@ def format_group_paces(ride_attributes, discipline_id, list_of_groups, ride_date
             output_lines.append(f"{name}: Group data not found")
             continue
 
-        paces = group_data.get('estimated_moving_pace', {})
-        summer_pace = paces.get('summer')
-        winter_pace = paces.get('winter')
+        paces = group_data.get("estimated_moving_pace", {})
+        summer_pace = paces.get("summer")
+        winter_pace = paces.get("winter")
 
         # 4. Pace Logic
         if is_summer:
@@ -370,9 +370,40 @@ def format_group_paces(ride_attributes, discipline_id, list_of_groups, ride_date
 # groups_to_print = ["G1", "G3"]
 # print(format_group_paces(config, "gravel", groups_to_print, ride_date))
 
+def get_start_location(locations, selected_discipline):
+    '''
+    Return start location for event
+    - Offers known start locations or accept text entry
+    '''
+    available_start_locations = [
+        {"name": loc["name"], "description": loc["description"], "map_url": loc["map_url"]}
+        for loc in locations if selected_discipline in loc.get("applicable_disciplines", [])
+    ]
+    available_start_locations.append({"name": "Other", "description": "", "map_url": ""})
+    
+    selected_start_location_data = select_from_list(available_start_locations, "start location")
+
+    if selected_start_location_data["name"] == "Other":
+        start_location_lines = collect_multiline_input("\nEnter the custom start location (press Enter twice to finish):\n")
+        start_location_name = "\n".join(start_location_lines)
+        start_location_full_string = start_location_name # No map_url or description for custom
+    else:
+        start_location_name = selected_start_location_data["name"]
+        if selected_start_location_data["map_url"]:
+            start_location_full_string = f"[{selected_start_location_data["name"]}]({selected_start_location_data["map_url"]}) - {selected_start_location_data["description"]}"
+        else:
+            start_location_full_string = f"{selected_start_location_data["name"]} - {selected_start_location_data["description"]}"
+
+    return start_location_full_string, start_location_name
+
 def main():
     # Check if 'DEBUG' environment variable exists
     ride_attributes = load_ride_attributes("ride_attributes.yml")
+    # Load secrets
+    with open("secrets.yml", "r") as file:
+        secrets = yaml.safe_load(file)
+    locations = secrets.get("locations", [])
+
     with open("ride_template.md", "r") as file:
         ride_template = file.read()
 
@@ -421,6 +452,9 @@ def main():
     # Get User Input for Approximate Distance
     approx_distance = input("\nEnter the approximate distance in km: ")
 
+    # Get User Input for Start Location
+    full_start_location, start_location_name = get_start_location(locations, selected_discipline["id"])
+
     # Get User Input for Routes
     route_description = collect_multiline_input("\nEnter the route URLs with any descriptors (press Enter twice to finish):\n")
 
@@ -436,7 +470,7 @@ def main():
     day_of_month = ride_date.strftime("%d")
     year = ride_date.strftime("%Y")
 
-    title = f"{day_of_week} {selected_culture["name"]} {month} {day_of_month}, {start_time.strftime("%I:%M %p")} at START_LOCATION"
+    title = f"{day_of_week} {selected_culture["name"]} {month} {day_of_month}, {start_time.strftime("%I:%M %p")} at {start_location_name}"
     logger.debug(f"Ride title: {title}")
 
     output_content = ride_template.replace("DAY_OF_WEEK", day_of_week)
@@ -462,6 +496,7 @@ def main():
         approx_distance += " km"
     output_content = output_content.replace("DISTANCE", approx_distance)
     output_content = output_content.replace("ESTIMATED_MOVING_AVERAGE", estimated_pace_string)
+    output_content = output_content.replace("START_LOCATION", full_start_location)
     output_content = output_content.replace("PROMPT_FOR_ROUTE", "\n".join(route_description))
     output_content = output_content.replace("PROMPT_FOR_DESCRIPTION", ride_description_text)
     output_content = output_content.replace("PROMPT_FOR_NOTES", ride_notes)
