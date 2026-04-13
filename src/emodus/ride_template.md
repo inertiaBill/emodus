@@ -7,7 +7,7 @@
 **Culture:** RIDE_ATTRIBUTES_YML_CULTURES_INFO
 **Approximate Distance:** DISTANCE
 **Estimated Average Moving Pace:** ESTIMATED_MOVING_AVERAGE
-**Start Location:** St Jacobs’ Outlet Mall SW corner of lot
+**Start Location:** START_LOCATION
 
 **Route**
 **--------**

@@ -13,8 +13,14 @@ description.
 
 ## Prerequites
 
+- Some computer that can run Python
+    - Easiest is Linux, macOS, or Windows box
+    - There are programs available for running Python programs on mobile devices (but these have not been tested)
 - Python version 3.12 (later is expected to work but not tested).
 - Python venv.
+- To tell Emodus about known start locations,
+    - Add them to a ile named secrets.yml in same directory as gen.py
+    - Use the same format as the "locations" section of ride_attributes.yml
 
 ## Setup
 
