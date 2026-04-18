@@ -3,6 +3,14 @@
 #
 # Waterloo Cycling Club - Master Ride Configuration
 
+templates:
+  default_poll: &default_poll |
+    [poll type=regular results=always public=true chartType=bar]
+    * ✅ Going
+    * 🤔 Interested
+    * ❌ Not going
+    [/poll]
+
 # Ride Disciplines
 disciplines:
   - id: cx
@@ -67,10 +75,20 @@ ride_groups:
         description: "Groups G1 through G4."
         member_groups: ["G1", "G2", "G3", "G4"]
         member_cultures: ["Fast", "Intermediate"]
+        discourse_poll: *default_poll
+
       - name: "G5 & Rec"
         description: "G5 & Rec"
         member_groups: ["G5", "Rec"]
         member_cultures: ["Rec"]
+        discourse_poll: |
+          [poll name=rec_and_g5 type=regular results=always public=true chartType=bar]
+          * ✅ Going Rec
+          * ✅ Going G5
+          * 🤔 Interested Rec
+          * 🤔 Interested G5
+          * ❌ Not going
+          [/poll]
     groups:
       - name: "G1"
         description: |

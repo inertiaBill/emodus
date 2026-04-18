@@ -22,10 +22,6 @@ PROMPT_FOR_DESCRIPTION
 
 PROMPT_FOR_NOTES
 
-[poll type=regular results=always public=true chartType=bar]
-* ✅ Going
-* 🤔 Interested
-* ❌ Not going
-[/poll]
+RIDE_ATTRIBUTES_DISCOURSE_POLL
 
 RIDE_ATTRIBUTES_YML_RIDE_FOOTER
