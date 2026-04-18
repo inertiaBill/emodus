@@ -47,11 +47,33 @@ Download the following files from GitHub:
     - ride_attributes.yml
     - ride_template.md
 
-## Running
+## How to Create a New Topic in the Waterloo Cycling Club Discourse Forum
 
-- Move to the folder where you downloaded the eModus files
-- Activate virtual environment as in "Setup" section above.
-- `python gen.py`
+Follow these steps to use the eModus tool to automate your topic creation.
 
-Note: if you would like to enable debug logging set debugging:
+### 1. Preparation
+* **Collect URLs:** Have the links for your routes ready to paste.
+* **Open Terminal:** Open your Command Prompt (Windows) or Terminal (macOS or Linux).
+
+### 2. Launch the Tool
+
+Navigate to your eModus folder and start the application:
+
+1.  **Enter the folder:** Use the `cd` command to move into the directory where you downloaded the files.
+2.  **Activate the environment:** Run the activation command from the "Setup" guide (this ensures the tool has the right permissions to run).
+3.  **Start the script:** Type the following and press **Enter**:
+    ```bash
+    python gen.py
+    ```
+### 3. Complete the Form
+
+* **Follow Prompts:** The terminal will ask you for specific information. Type or paste your details as requested.
+* **Automated Browser:** Once the info is entered, **gen.py** will automatically open your web browser and fill in the fields for you. 
+* **Select Discipline:** Look for the "Tag" section in the browser and manually select the correct **Ride Discipline**.
+
+### 4. Review and Submit
+* **Check Your Work:** Briefly review the information the script populated in the browser to ensure everything looks correct.
+* **Publish:** Click the **Create topic** button at the bottom of the page to finish.
+
+Note to Developers: if you would like to enable debug logging set debugging:
 - Linux: `DEBUG=1 python gen.py`
