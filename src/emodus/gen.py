@@ -276,6 +276,20 @@ def get_specific_collection_list(ride_attributes, discipline_id, collection_name
     # Return None or an empty list if no match is found
     return None
 
+def get_discourse_poll(ride_attributes, discipline_id, collection_name):
+    """
+    Returns the discourse_poll value for a specific discipline and collection name.
+    """
+    ride_groups = ride_attributes.get("ride_groups", [])
+    for ride in ride_groups:
+        if ride.get("discipline_id") == discipline_id:
+            collections = ride.get("group_collections", [])
+            for collection in collections:
+                current_name = collection.get("name", "")
+                if current_name.strip().lower() == collection_name.strip().lower():
+                    return collection.get("discourse_poll", ride_attributes["templates"]["default_poll"])
+    return ride_attributes["templates"]["default_poll"]
+
 def get_group_name_as_list(ride_attributes, discipline_id):
     # Locate the discipline
     discipline = next((d for d in ride_attributes.get("ride_groups", [])
@@ -399,10 +413,8 @@ def get_start_location(locations, selected_discipline):
 def main():
     # Check if 'DEBUG' environment variable exists
     ride_attributes = load_ride_attributes("ride_attributes.yml")
-    # Load secrets
-    with open("secrets.yml", "r") as file:
-        secrets = yaml.safe_load(file)
-    locations = secrets.get("locations", [])
+    secrets = load_ride_attributes("secrets.yml")
+    #locations = secrets.get("locations", [])
 
     with open("ride_template.md", "r") as file:
         ride_template = file.read()
@@ -443,9 +455,10 @@ def main():
     # Assemble estimated pace for all groups of selected cultures
     if is_group_collection is True:
         list_of_groups = get_specific_member_groups(ride_attributes, selected_discipline["id"], selected_culture["name"])
+        discourse_poll = get_discourse_poll(ride_attributes, selected_discipline["id"], selected_culture["name"])
     else:
         list_of_groups = get_group_name_as_list(ride_attributes, selected_discipline["id"])
-    print(list_of_groups)
+    logger.debug(f"List of groups: {list_of_groups}")
     estimated_pace_string = format_group_paces(ride_attributes, selected_discipline["id"], list_of_groups, ride_date)
     #def format_group_paces(ride_attributes, discipline_id, selected_groups, ride_date)
 
@@ -453,7 +466,7 @@ def main():
     approx_distance = input("\nEnter the approximate distance in km: ")
 
     # Get User Input for Start Location
-    full_start_location, start_location_name = get_start_location(locations, selected_discipline["id"])
+    full_start_location, start_location_name = get_start_location(secrets.get("locations", []), selected_discipline["id"])
 
     # Get User Input for Routes
     route_description = collect_multiline_input("\nEnter the route URLs with any descriptors (press Enter twice to finish):\n")
@@ -500,6 +513,7 @@ def main():
     output_content = output_content.replace("PROMPT_FOR_ROUTE", "\n".join(route_description))
     output_content = output_content.replace("PROMPT_FOR_DESCRIPTION", ride_description_text)
     output_content = output_content.replace("PROMPT_FOR_NOTES", ride_notes)
+    output_content = output_content.replace("RIDE_ATTRIBUTES_DISCOURSE_POLL", discourse_poll)
     output_content = output_content.replace("RIDE_ATTRIBUTES_YML_RIDE_FOOTER", ride_attributes["ride_footer"])
 
     print("\nGenerated Ride Description:\n")
