@@ -20,6 +20,8 @@ import logging
 import os
 import re
 from datetime import datetime, timedelta, time
+from urllib.parse import quote
+import webbrowser
 import yaml
 
 # Define the logger that was missing
@@ -458,6 +460,7 @@ def main():
         discourse_poll = get_discourse_poll(ride_attributes, selected_discipline["id"], selected_culture["name"])
     else:
         list_of_groups = get_group_name_as_list(ride_attributes, selected_discipline["id"])
+        discourse_poll = ride_attributes["templates"]["default_poll"]
     logger.debug(f"List of groups: {list_of_groups}")
     estimated_pace_string = format_group_paces(ride_attributes, selected_discipline["id"], list_of_groups, ride_date)
     #def format_group_paces(ride_attributes, discipline_id, selected_groups, ride_date)
@@ -483,8 +486,12 @@ def main():
     day_of_month = ride_date.strftime("%d")
     year = ride_date.strftime("%Y")
 
-    title = f"{day_of_week} {selected_culture["name"]} {month} {day_of_month}, {start_time.strftime("%I:%M %p")} at {start_location_name}"
-    logger.debug(f"Ride title: {title}")
+    title = (
+        f"{day_of_week} {selected_culture["name"]} "
+        f"{selected_discipline["name"]} Ride {month} {day_of_month}, "
+        f"{start_time.strftime("%I:%M %p")} at {start_location_name}"
+    )
+    logger.debug("Ride title: %s", title)
 
     output_content = ride_template.replace("DAY_OF_WEEK", day_of_week)
     output_content = output_content.replace("MONTH", month)
@@ -501,7 +508,7 @@ def main():
         # It's an individual group. Prompt for group name.
         culture_string = "[" + selected_culture["name"] +\
             "](" + selected_culture["url"] + ")"
-    logger.debug(f"culture_string: {culture_string}")
+    logger.debug("culture_string: %s", culture_string)
     output_content = output_content.replace("RIDE_ATTRIBUTES_YML_CULTURES_INFO", culture_string)
     if approx_distance.strip() == "":
         approx_distance = " See proposed route"
@@ -518,6 +525,19 @@ def main():
 
     print("\nGenerated Ride Description:\n")
     print(output_content)
+
+    url_title_string = quote(title)
+    url_body_string = quote(output_content)
+    logger.debug("URL title: %s", url_title_string)
+
+    create_ride_url = (
+        f"https://forum.waterloocyclingclub.ca/new-topic?title={url_title_string}"
+        f"&body={url_body_string}"
+        f"&category=ride-planning-signup"
+        f"&tags={selected_discipline}"
+    )
+    webbrowser.open(create_ride_url)
+
 
     with open("generated_ride_description.md", "w") as output_file:
         output_file.write(output_content)
