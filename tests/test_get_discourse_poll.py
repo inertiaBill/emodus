@@ -1,9 +1,10 @@
+"""Test get_discourse_poll function"""
+
 import unittest
-from unittest.mock import MagicMock, patch
 from emodus.gen import get_discourse_poll
 
 class TestGetDiscoursePoll(unittest.TestCase):
-
+    """Test get_discourse_poll function"""
     def setUp(self):
         self.ride_attributes = {
             "templates": {
@@ -36,27 +37,27 @@ class TestGetDiscoursePoll(unittest.TestCase):
         }
 
     def test_get_discourse_poll_found(self):
-        # Test case where the discourse_poll is found for a discipline and collection
+        """Test case where discourse_poll is found for discipline and collection"""
         result = get_discourse_poll(self.ride_attributes, "road", "A Group")
         self.assertEqual(result, "A Group Poll")
 
     def test_get_discourse_poll_found_case_insensitive(self):
-        # Test case with case-insensitive collection name
+        """Test case with case-insensitive collection name"""
         result = get_discourse_poll(self.ride_attributes, "road", "a group")
         self.assertEqual(result, "A Group Poll")
 
     def test_get_discourse_poll_not_found_collection(self):
-        # Test case where collection name is not found
+        """Test case where collection name is not found"""
         result = get_discourse_poll(self.ride_attributes, "road", "Non Existent Group")
         self.assertEqual(result, self.ride_attributes["templates"]["default_poll"])
 
     def test_get_discourse_poll_not_found_discipline(self):
-        # Test case where discipline_id is not found
+        """Test case where discipline_id is not found"""
         result = get_discourse_poll(self.ride_attributes, "mtb", "Any Group")
         self.assertEqual(result, self.ride_attributes["templates"]["default_poll"])
 
     def test_get_discourse_poll_no_group_collections(self):
-        # Test case with a discipline that has no group_collections
+        """Test case with a discipline that has no group_collections"""
         ride_attributes_no_collections = {
             "templates": {
                 "default_poll": "Default Poll Content"
@@ -72,7 +73,7 @@ class TestGetDiscoursePoll(unittest.TestCase):
         self.assertEqual(result, self.ride_attributes["templates"]["default_poll"])
 
     def test_get_discourse_poll_no_ride_groups(self):
-        # Test case with no ride_groups at all
+        """Test case with no ride_groups at all"""
         ride_attributes_empty = {"ride_groups": [],
                                  "templates": {
                                      "default_poll": "Default Poll Content"
@@ -82,7 +83,7 @@ class TestGetDiscoursePoll(unittest.TestCase):
         self.assertEqual(result, self.ride_attributes["templates"]["default_poll"])
 
     def test_get_discourse_poll_missing_discourse_poll_key(self):
-        # Test case where discourse_poll key is missing for a matching collection
+        """Test case where discourse_poll key is missing for a matching collection"""
         ride_attributes_missing_key = {
             "ride_groups": [
                 {
@@ -102,12 +103,19 @@ class TestGetDiscoursePoll(unittest.TestCase):
         self.assertEqual(result, self.ride_attributes["templates"]["default_poll"])
 
     def test_get_discourse_poll_default_poll_returned_if_not_found(self):
-        # Test case where no specific poll is found, and default_poll should be returned
+        """
+        Test case where no specific poll is found
+         
+        Default_poll should be returned
+        """
         result = get_discourse_poll(self.ride_attributes, "road", "Non Existent Collection")
         self.assertEqual(result, self.ride_attributes["templates"]["default_poll"])
 
     def test_get_discourse_poll_default_poll_returned_if_discipline_not_found(self):
-        # Test case where discipline is not found, and default_poll should be returned
+        """
+        Test case where discipline is not found
+         
+        Default_poll should be returned
+        """
         result = get_discourse_poll(self.ride_attributes, "non_existent_discipline", "Any Group")
         self.assertEqual(result, self.ride_attributes["templates"]["default_poll"])
-
