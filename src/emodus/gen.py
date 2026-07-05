@@ -20,6 +20,7 @@ import logging
 import os
 import re
 from datetime import datetime, timedelta, time
+
 from urllib.parse import quote
 import webbrowser
 import yaml
@@ -321,8 +322,6 @@ def get_group_name_as_list(ride_attributes, discipline_id):
         except ValueError:
             print("Invalid input. Please enter a number.")
 
-from datetime import date
-
 def format_group_paces(ride_attributes, discipline_id, list_of_groups, ride_date):
     """
     Creates a formatted string of group names and paces.
@@ -330,8 +329,6 @@ def format_group_paces(ride_attributes, discipline_id, list_of_groups, ride_date
     - Winter: Nov 16th to March 31st
     """
     # Define the seasonal boundaries
-    # summer_start = date(ride_date.year, 4, 1)
-    # summer_end = date(ride_date.year, 11, 15)
     summer_start = datetime(ride_date.year, 4, 1)
     summer_end = datetime(ride_date.year, 11, 15)
     is_summer = summer_start <= ride_date <= summer_end
@@ -380,11 +377,6 @@ def format_group_paces(ride_attributes, discipline_id, list_of_groups, ride_date
         output_lines.append("")
 
     return "\n".join(output_lines)
-
-# --- Example Usage ---
-# ride_date = date(2024, 12, 1) # Winter
-# groups_to_print = ["G1", "G3"]
-# print(format_group_paces(config, "gravel", groups_to_print, ride_date))
 
 def get_start_location(locations, selected_discipline):
     '''
