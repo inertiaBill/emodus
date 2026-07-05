@@ -13,6 +13,7 @@ from emodus.gen import parse_flexible_time, get_time_input
     ("8 am", time(8, 0)),           # 12-hour lowercase
     ("12:30 AM", time(0, 30)),      # Midnight case
     ("12:00 PM", time(12, 0)),      # Noon case
+    ("12", time(12, 0)),            # Noon case
     ("6 p", time(18, 0)),           # Space and single letter
 ])
 def test_parse_flexible_time_valid(input_str, expected):
