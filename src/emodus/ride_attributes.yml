@@ -77,15 +77,15 @@ ride_groups:
         member_cultures: ["Fast", "Intermediate"]
         discourse_poll: *default_poll
 
-      - name: "G5 & Rec"
-        description: "G5 & Rec"
-        member_groups: ["G5", "Rec"]
+      - name: "G5 & G6 Rec"
+        description: "G5 & G6 Rec"
+        member_groups: ["G5", "G6"]
         member_cultures: ["Rec"]
         discourse_poll: |
           [poll name=rec_and_g5 type=regular results=always public=true chartType=bar]
-          * ✅ Going Rec
+          * ✅ Going G6
           * ✅ Going G5
-          * 🤔 Interested Rec
+          * 🤔 Interested G6
           * 🤔 Interested G5
           * ❌ Not going
           [/poll]
@@ -121,7 +121,7 @@ ride_groups:
         estimated_moving_pace:
           summer: "21-24 km/h (no drop)"
           winter: "18-20 km/h (no drop)"
-      - name: "Rec"
+      - name: "G6"
         description: |
           A fun social ride. This ride is great for those who do
           not want to ride in a tight formation. More relaxed
