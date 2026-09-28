@@ -478,8 +478,15 @@ def main():
     day_of_month = ride_date.strftime("%d")
     year = ride_date.strftime("%Y")
 
+    # TODO - Issue #37
+    # When length of list_of_groups = 1, need to add list_of_groups[0] between day of week and selected_culture.
+
+    actual_group_name = ""
+    if len(list_of_groups) == 1:
+        actual_group_name = list_of_groups[0] + " "
+    
     title = (
-        f"{day_of_week} {selected_culture["name"]} "
+        f"{day_of_week} {actual_group_name}{selected_culture["name"]} "
         f"{selected_discipline["name"]} Ride {month} {day_of_month}, "
         f"{start_time.strftime("%I:%M %p")} at {start_location_name}"
     )
@@ -516,6 +523,8 @@ def main():
     output_content = output_content.replace("RIDE_ATTRIBUTES_YML_RIDE_FOOTER", ride_attributes["ride_footer"])
 
     print("\nGenerated Ride Description:\n")
+    print(title)
+    print()
     print(output_content)
 
     url_title_string = quote(title)
@@ -528,6 +537,9 @@ def main():
         f"&category=ride-planning-signup"
         f"&tags={selected_discipline}"
     )
+
+    print(f"Ride Forum URL: {create_ride_url}")
+
     webbrowser.open(create_ride_url)
 
 
